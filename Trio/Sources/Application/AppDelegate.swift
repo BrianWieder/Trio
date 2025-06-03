@@ -77,4 +77,20 @@ class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject, UNUserNoti
     ) {
         debug(.remoteControl, "Failed to register for remote notifications: \(error)")
     }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        let content = UNMutableNotificationContent()
+        content.title = "Trio App Closed"
+        content.body = "The Trio app was closed. Please reopen it to ensure the closed-loop algorithm continues to function."
+        content.sound = UNNotificationSound.default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                debug(.default, "Error scheduling notification: \(error)")
+            }
+        }
+    }
 }
